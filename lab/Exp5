@@ -1,0 +1,19 @@
+import pandas as pd
+import numpy as np
+
+file_name = 'Fuel_Efficiency datasets.xlsx - Sheet1 (1).xlsx'
+df = pd.read_excel(file_name)
+
+mustang_data = df[df['model'] == 'mustang']['highway_mpg(Fuel Efficiency)']
+corolla_data = df[df['model'] == 'corolla']['highway_mpg(Fuel Efficiency)']
+
+mustang_array = np.array(mustang_data)
+corolla_array = np.array(corolla_data)
+mustang_avg = np.mean(mustang_array)
+corolla_avg = np.mean(corolla_array)
+
+percentage_improvement = ((corolla_avg - mustang_avg) / mustang_avg) * 100
+
+print(f"Average Ford Mustang Efficiency: {mustang_avg:.2f} mpg")
+print(f"Average Toyota Corolla Efficiency: {corolla_avg:.2f} mpg")
+print(f"Percentage Improvement (Mustang to Corolla): {percentage_improvement:.2f}%")
