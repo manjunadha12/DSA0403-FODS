@@ -1,0 +1,11 @@
+import pandas as pd
+import numpy as np
+file_path = 'Exp9.xlsx'
+df = pd.read_excel(file_path)
+house_data = df.values
+bedroom_col = df.columns.get_loc('bedrooms')
+price_col = df.columns.get_loc('price')
+more_than_four_beds = house_data[:, bedroom_col] > 4
+filtered_prices = house_data[more_than_four_beds, price_col]
+average_price = np.mean(filtered_prices)
+print(f"Average Sale Price for >4 bedrooms: ${average_price:,.2f}")
