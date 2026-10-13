@@ -1,0 +1,21 @@
+import pandas as pd
+import numpy as np
+
+filepath = "Sales (1).xlsx"
+df = pd.read_excel(filepath, sheet_name='Sales')
+
+df['Month_sales'] = pd.to_datetime(df['Month_sales'], format='mixed')
+july_data = df[(df['Month_sales'].dt.month == 7) & (df['Month_sales'].dt.year == 2023)]
+
+july_prices_array = july_data['Price'].to_numpy()
+
+overall_avg_price = np.mean(july_prices_array)
+print(f"Overall Average Price (July 2023): ${overall_avg_price:.2f}")
+
+print("\nAverage Price Per Product (July 2023):")
+unique_products = july_data['Product_Name'].unique()
+
+for product in unique_products:
+    product_prices = july_data[july_data['Product_Name'] == product]['Price'].to_numpy()
+    avg_price = np.mean(product_prices)
+    print(f"- {product}: ${avg_price:.2f}")
