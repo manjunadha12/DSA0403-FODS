@@ -1,0 +1,22 @@
+import pandas as pd
+
+file_path = 'Exp9.xlsx'
+property_data = pd.read_excel(file_path)
+
+average_price_by_location = property_data.groupby('prefarea')['price'].mean()
+
+print("1. Average listing price by location (prefarea):")
+print(average_price_by_location)
+print("-" * 40)
+
+num_properties_over_4_beds = (property_data['bedrooms'] > 4).sum()
+
+print("2. Number of properties with more than four bedrooms:")
+print(num_properties_over_4_beds)
+print("-" * 40)
+
+largest_property_index = property_data['area'].idxmax()
+largest_property = property_data.loc[largest_property_index]
+
+print("3. Property with the largest area:")
+print(largest_property)
