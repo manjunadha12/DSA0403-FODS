@@ -1,0 +1,21 @@
+import pandas as pd
+
+df = pd.read_excel('Exp8.xlsx')
+
+df['order_date'] = pd.to_datetime(df['order_date'])
+
+latest_date = df['order_date'].max()
+first_day_of_month = latest_date.replace(day=1)
+last_month_df = df[
+    (df['order_date'] >= first_day_of_month) & (df['order_date'] <= latest_date)
+]
+
+top_5_products = (
+    last_month_df.groupby('product_name')['quantity']
+    .sum()
+    .sort_values(ascending=False)
+    .head(5)
+    .reset_index()
+)
+
+print(top_5_products)
