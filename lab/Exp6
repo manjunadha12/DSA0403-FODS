@@ -1,0 +1,17 @@
+import pandas as pd
+df = pd.read_csv("grocery_purchase_dataset_150_rows (1).csv")
+df['Base_Cost'] = df['Item_Price'] * df['Quantity']
+df['Discount_Amount'] = df['Base_Cost'] * (df['Discount_Rate_Percent'] / 100)
+df['Cost_After_Discount'] = df['Base_Cost'] - df['Discount_Amount']
+df['Tax_Amount'] = df['Cost_After_Discount'] * (df['Tax_Rate_Percent'] / 100)
+df['Final_Cost'] = df['Cost_After_Discount'] + df['Tax_Amount']
+
+total_base = df['Base_Cost'].sum()
+total_discount = df['Discount_Amount'].sum()
+total_tax = df['Tax_Amount'].sum()
+total_cost = df['Final_Cost'].sum()
+
+print(f"Total Base Cost: {total_base:.2f}")
+print(f"Total Discount: {total_discount:.2f}")
+print(f"Total Tax: {total_tax:.2f}")
+print(f"Total Final Cost: {total_cost:.2f}")
