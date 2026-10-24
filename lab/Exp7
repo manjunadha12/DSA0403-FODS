@@ -1,0 +1,23 @@
+import pandas as pd
+
+order_data = pd.read_excel('Exp8.xlsx')
+
+order_data['order_date'] = pd.to_datetime(order_data['order_date'])
+
+orders_per_customer = order_data.groupby('customer_name')['order_id'].nunique().reset_index(name='total_orders')
+
+avg_quantity_per_product = order_data.groupby('product_name')['quantity'].mean().reset_index(name='average_order_quantity')
+
+# 3. Earliest and latest order dates in the dataset
+earliest_order_date = order_data['order_date'].min()
+latest_order_date = order_data['order_date'].max()
+
+print("--- 1. Total Orders Per Customer (Sample) ---")
+print(orders_per_customer.head())
+
+print("\n--- 2. Average Order Quantity Per Product (Sample) ---")
+print(avg_quantity_per_product.head())
+
+print("\n--- 3. Order Date Range ---")
+print(f"Earliest Order Date: {earliest_order_date.strftime('%Y-%m-%d')}")
+print(f"Latest Order Date:   {latest_order_date.strftime('%Y-%m-%d')}")
