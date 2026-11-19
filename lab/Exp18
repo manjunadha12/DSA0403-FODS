@@ -1,0 +1,21 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('18bodyfat.csv')
+
+print("The mean of Age is:", round(df['Age'].mean(), 2))
+print("The mean of Bodyfat is:", round(df['BodyFat'].mean(), 2))
+print("The median Age is:", df['Age'].median())
+print("The median Bodyfat is:", df['BodyFat'].median())
+print("The Standard Deviation Age is:", round(df['Age'].std(), 2))
+print("The Standard Deviation Bodyfat is:", round(df['BodyFat'].std(), 2))
+
+plt.boxplot([df['Age'], df['BodyFat']], labels=['Age', 'Body Fat %'])
+plt.title("Distribution of Age and Body Fat")
+plt.show()
+
+plt.scatter(df['Age'], df['BodyFat'], marker="o")
+plt.title("Age vs Body Fat")
+plt.xlabel("Age")
+plt.ylabel("Body Fat %")
+plt.show()
