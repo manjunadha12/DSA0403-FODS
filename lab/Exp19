@@ -1,0 +1,37 @@
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv('bp.csv')
+
+df["Group"] = df["Group"].str.strip()
+
+drug = df[df["Group"] == "Drug"]["Reduction"]
+placebo = df[df["Group"] == "Placebo"]["Reduction"]
+
+mean_drug = drug.mean()
+mean_placebo = placebo.mean()
+
+std_drug = drug.std()
+std_placebo = placebo.std()
+
+n_drug = drug.count()
+n_placebo = placebo.count()
+
+se_drug = std_drug / np.sqrt(n_drug)
+se_placebo = std_placebo / np.sqrt(n_placebo)
+
+z = 1.96
+
+me_drug = z * se_drug
+me_placebo = z * se_placebo
+
+ci_drug = (mean_drug - me_drug, mean_drug + me_drug)
+ci_placebo = (mean_placebo - me_placebo, mean_placebo + me_placebo)
+
+print("Drug Group")
+print("Mean BP Reduction:", round(mean_drug, 2))
+print("95% Confidence Interval:", (round(ci_drug[0], 2), round(ci_drug[1], 2)))
+
+print("\nPlacebo Group")
+print("Mean BP Reduction:", round(mean_placebo, 2))
+print("95% Confidence Interval:", (round(ci_placebo[0], 2), round(ci_placebo[1], 2)))
