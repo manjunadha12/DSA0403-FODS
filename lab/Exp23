@@ -1,0 +1,55 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+
+file_path = "FODS_Lab_Datasets_Q20_to_Q40.xlsx"
+df = pd.read_excel(file_path, sheet_name="Q23_Clinical_Trial", skiprows=3)
+
+placebo = df[df["Group"] == "Placebo"]["Improvement"]
+treatment = df[df["Group"] == "Treatment"]["Improvement"]
+
+t_stat, p_val = stats.ttest_ind(treatment, placebo, equal_var=True)
+
+print(f"Placebo Mean Improvement:   {placebo.mean():.2f} (SD = {placebo.std(ddof=1):.2f})")
+print(f"Treatment Mean Improvement: {treatment.mean():.2f} (SD = {treatment.std(ddof=1):.2f})")
+print(f"t-statistic: {t_stat:.4f}, p-value: {p_val:.4e}")
+
+if p_val < 0.05:
+    print("Conclusion: Reject H0 — The new treatment has a statistically significant effect.")
+else:
+    print("Conclusion: Fail to reject H0 — No statistically significant effect.")
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+bp = axes[0].boxplot([placebo, treatment], labels=["Placebo (Control)", "Treatment (New Drug)"],
+                     patch_artist=True, widths=0.5,
+                     boxprops=dict(alpha=0.6), medianprops=dict(color="black", linewidth=2))
+bp["boxes"][0].set_facecolor("#7fb3d5")
+bp["boxes"][1].set_facecolor("#76d7c4")
+
+np.random.seed(42)
+axes[0].scatter(np.random.normal(1, 0.04, len(placebo)), placebo, color="#2980b9", alpha=0.6, s=25)
+axes[0].scatter(np.random.normal(2, 0.04, len(treatment)), treatment, color="#16a085", alpha=0.6, s=25)
+
+y_max = max(placebo.max(), treatment.max())
+axes[0].plot([1, 1, 2, 2], [y_max + 2, y_max + 4, y_max + 4, y_max + 2], lw=1.5, c="black")
+axes[0].text(1.5, y_max + 5, f"t = {t_stat:.2f}, p = {p_val:.2e}\n(Statistically Significant)",
+             ha="center", va="bottom", fontsize=10, fontweight="bold", color="#c0392b")
+axes[0].set_ylim(min(placebo.min(), treatment.min()) - 4, y_max + 13)
+axes[0].set_title("Clinical Trial: Improvement Score by Group", fontweight="bold")
+axes[0].set_ylabel("Improvement Score (Baseline - Post)")
+axes[0].grid(axis="y", linestyle="--", alpha=0.5)
+
+axes[1].hist(placebo, bins=12, alpha=0.6, color="#2980b9", label=f"Placebo (Mean = {placebo.mean():.2f})")
+axes[1].hist(treatment, bins=12, alpha=0.6, color="#16a085", label=f"Treatment (Mean = {treatment.mean():.2f})")
+axes[1].axvline(placebo.mean(), color="#1f618d", linestyle="--", linewidth=2)
+axes[1].axvline(treatment.mean(), color="#117a65", linestyle="--", linewidth=2)
+axes[1].set_title("Distribution of Improvement Scores", fontweight="bold")
+axes[1].set_xlabel("Improvement Score")
+axes[1].set_ylabel("Number of Patients")
+axes[1].legend()
+axes[1].grid(axis="y", linestyle="--", alpha=0.5)
+
+plt.tight_layout()
+plt.show()
