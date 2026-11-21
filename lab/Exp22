@@ -1,0 +1,34 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+# 1. Load the dataset from the Excel workbook
+file_path = "FODS_Lab_Datasets_Q20_to_Q40.xlsx"
+df = pd.read_excel(file_path, sheet_name="Q22_Customer_Reviews", skiprows=3)
+
+# 2. Extract ratings for the product category
+category = df["Product_Category"].iloc[0]
+ratings = df["Rating"].dropna()
+
+# 3. Calculate descriptive statistics using Pandas
+n = len(ratings)
+mean_rating = ratings.mean()
+std_rating = ratings.std(ddof=1)
+standard_error = std_rating / np.sqrt(n)
+
+# 4. Calculate 95% Confidence Interval (t-distribution)
+confidence_level = 0.95
+alpha = 1 - confidence_level
+t_critical = stats.t.ppf(1 - alpha / 2, df=n - 1)
+margin_of_error = t_critical * standard_error
+
+ci_lower = mean_rating - margin_of_error
+ci_upper = mean_rating + margin_of_error
+
+# 5. Display results
+print(f"Product Category:          {category}")
+print(f"Sample Size (n):           {n}")
+print(f"Average Rating:            {mean_rating:.4f}")
+print(f"Standard Deviation:        {std_rating:.4f}")
+print(f"Margin of Error (95% CI):  ±{margin_of_error:.4f}")
+print(f"95% Confidence Interval:   [{ci_lower:.4f}, {ci_upper:.4f}]")
