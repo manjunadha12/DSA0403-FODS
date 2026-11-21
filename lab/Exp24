@@ -1,0 +1,53 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# 1. Load the dataset from the Excel workbook
+file_path = "FODS_Lab_Datasets_Q20_to_Q40.xlsx"
+df = pd.read_excel(file_path, sheet_name="Q24_Medical_KNN", skiprows=3)
+
+features = ["Body_Temp_F", "Cough_Severity", "Fatigue_Score", "WBC_Count"]
+X = df[features]
+y = df["Condition"]
+
+# 2. Split into training and testing sets (80/20) and scale features
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 3. Get user input for k and new patient's symptom features
+print("Enter the new patient's symptom details:")
+body_temp = float(input("  Body Temperature (°F) [e.g., 101.5]: "))
+cough = float(input("  Cough Severity (0–10) [e.g., 7]: "))
+fatigue = float(input("  Fatigue Score (0–10)  [e.g., 8]: "))
+wbc = float(input("  WBC Count             [e.g., 9.5]: "))
+k = int(input(f"Enter the value of k (1 to {len(X_train)}): "))
+
+if not (1 <= k <= len(X_train)):
+    raise ValueError(f"k must be between 1 and {len(X_train)}.")
+
+# 4. Train the KNN Classifier
+knn = KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train_scaled, y_train)
+
+# Evaluate model accuracy on test set
+test_acc = accuracy_score(y_test, knn.predict(X_test_scaled))
+
+# 5. Predict for the new patient
+new_patient = pd.DataFrame([[body_temp, cough, fatigue, wbc]], columns=features)
+new_patient_scaled = scaler.transform(new_patient)
+
+prediction = knn.predict(new_patient_scaled)[0]
+probabilities = knn.predict_proba(new_patient_scaled)[0]
+
+# 6. Display Results
+print("\n--- KNN Prediction Results ---")
+print(f"Model Test Accuracy (k={k}): {test_acc * 100:.2f}%")
+print(f"Predicted Class:             {prediction} ({'Has Medical Condition' if prediction == 1 else 'No Medical Condition'})")
+print(f"Prediction Probabilities:    No Condition (0): {probabilities[0]*100:.1f}% | Has Condition (1): {probabilities[1]*100:.1f}%")
