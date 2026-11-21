@@ -1,0 +1,50 @@
+import numpy as np
+import pandas as pd
+from scipy import stats
+file_path = "FODS_Lab_Datasets_Q20_to_Q40.xlsx"
+df = pd.read_excel(file_path, sheet_name="Q21_Rare_Elements", skiprows=3)
+data = df["Concentration_ppm"].dropna().to_numpy()
+
+population_size = len(data)
+print(f"Loaded {population_size} rare element concentration measurements from '{file_path}'.\n")
+
+sample_size = int(input(f"Enter the sample size (2 to {population_size}): "))
+confidence_level = float(input("Enter the confidence level (e.g., 0.95 for 95%): "))
+desired_precision = float(input("Enter the desired level of precision / margin of error (e.g., 1.5): "))
+
+if not (2 <= sample_size <= population_size):
+    raise ValueError(f"Sample size must be between 2 and {population_size}.")
+if not (0 < confidence_level < 1):
+    raise ValueError("Confidence level must be between 0 and 1 (e.g., 0.95).")
+if desired_precision <= 0:
+    raise ValueError("Desired precision must be a positive number.")
+
+# 3. Random Sampling & Point Estimation (using NumPy)
+sample = np.random.choice(data, size=sample_size, replace=False)
+point_estimate = np.mean(sample)
+sample_std = np.std(sample, ddof=1)
+standard_error = sample_std / np.sqrt(sample_size)
+
+# 4. Confidence Interval Calculation (t-distribution)
+alpha = 1 - confidence_level
+t_critical = stats.t.ppf(1 - alpha / 2, df=sample_size - 1)
+margin_of_error = t_critical * standard_error
+ci_lower = point_estimate - margin_of_error
+ci_upper = point_estimate + margin_of_error
+
+# 5. Precision Check & Required Sample Size Estimate
+z_critical = stats.norm.ppf(1 - alpha / 2)
+required_n = int(np.ceil((z_critical * sample_std / desired_precision) ** 2))
+
+# 6. Display Results
+print("\n--- Estimation Results ---")
+print(f"Point Estimate (Sample Mean):   {point_estimate:.4f} ppm")
+print(f"Sample Standard Deviation:      {sample_std:.4f} ppm")
+print(f"Margin of Error:                ±{margin_of_error:.4f} ppm")
+print(f"{confidence_level * 100:.1f}% Confidence Interval:      [{ci_lower:.4f}, {ci_upper:.4f}] ppm")
+
+if margin_of_error <= desired_precision:
+    print(f"Precision Check:                MET (Margin of error ±{margin_of_error:.4f} <= ±{desired_precision})")
+else:
+    print(f"Precision Check:                NOT MET (Margin of error ±{margin_of_error:.4f} > ±{desired_precision})")
+    print(f"Estimated Sample Size Needed:   ~{required_n} measurements")
