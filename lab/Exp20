@@ -1,0 +1,21 @@
+import pandas as pd
+from scipy import stats
+
+# Load the Q20 sheet (skipping the 3 header/title rows)
+df = pd.read_excel('FODS_Lab_Datasets_Q20_to_Q40.xlsx', sheet_name='Q20_AB_Test', skiprows=3)
+
+# Split conversion rates by design group
+group_a = df[df['Design_Group'] == 'A']['Conversion_Rate_Pct']
+group_b = df[df['Design_Group'] == 'B']['Conversion_Rate_Pct']
+
+# Perform two-sample independent t-test
+t_stat, p_val = stats.ttest_ind(group_a, group_b, equal_var=True)
+
+print(f"Design A Mean: {group_a.mean():.2f}%")
+print(f"Design B Mean: {group_b.mean():.2f}%")
+print(f"t-statistic: {t_stat:.4f}, p-value: {p_val:.4e}")
+
+if p_val < 0.05:
+    print("Reject H0: Statistically significant difference between Design A and Design B.")
+else:
+    print("Fail to reject H0: No statistically significant difference.")
