@@ -1,0 +1,52 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# 1. Load the dataset from the Excel workbook
+file_path = "FODS_Lab_Datasets_Q20_to_Q40.xlsx"
+df = pd.read_excel(file_path, sheet_name="Q27_Telco_Churn", skiprows=3)
+
+features = ["Usage_Minutes", "Contract_Duration_Mo", "Monthly_Bill_USD", "Support_Calls"]
+X = df[features]
+y = df["Churn"]
+
+# 2. Split into training and testing sets (80/20) and scale features
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 3. Train the Logistic Regression model
+model = LogisticRegression(random_state=42)
+model.fit(X_train_scaled, y_train)
+
+# Evaluate accuracy on the test set
+test_acc = accuracy_score(y_test, model.predict(X_test_scaled))
+
+# 4. Get user input for a new customer
+print("Enter the new customer's details:")
+usage_minutes = float(input("  Usage Minutes               [e.g., 250]: "))
+contract_mo   = int(input("  Contract Duration (Months)  [e.g., 1]: "))
+monthly_bill  = float(input("  Monthly Bill (USD)          [e.g., 115.0]: "))
+support_calls = int(input("  Number of Support Calls     [e.g., 5]: "))
+
+# 5. Predict churn status
+new_customer = pd.DataFrame(
+    [[usage_minutes, contract_mo, monthly_bill, support_calls]],
+    columns=features
+)
+new_customer_scaled = scaler.transform(new_customer)
+
+prediction = model.predict(new_customer_scaled)[0]
+probabilities = model.predict_proba(new_customer_scaled)[0]
+
+# 6. Display Results
+print("\n--- Logistic Regression Churn Prediction ---")
+print(f"Model Test Accuracy:      {test_acc * 100:.2f}%")
+print(f"Predicted Churn Status:   {prediction} ({'Will Churn' if prediction == 1 else 'Will Not Churn'})")
+print(f"Prediction Probabilities: Retain (0): {probabilities[0]*100:.1f}% | Churn (1): {probabilities[1]*100:.1f}%")
